@@ -1,18 +1,15 @@
+
 from fastapi import FastAPI
 from amadeus import Client, ResponseError
 from datetime import datetime
 
 app = FastAPI(title="Buscador de Vuelos Económicos")
 
-# Configura el cliente Amadeus con tus credenciales del Sandbox
-
-rom amadeus import Client
-
+# Configura el cliente Amadeus con tus credenciales
 amadeus = Client(
     client_id="U0156VAr98TAIDHoHD3m49C7XKtmg36R",
     client_secret="OOoUAAFl4WRXwn6e"
 )
-
 
 # Diccionario para convertir códigos de aerolíneas a nombres
 aerolineas = {
@@ -31,7 +28,7 @@ def formatear_duracion(duracion_iso):
     return f"{horas} horas {minutos} minutos"
 
 @app.get("/buscar_vuelos")
-def buscar_vuelos(origen: str, destino: str, fecha_ida: str, fecha_vuelta: str, adultos: int = 1):
+def buscar_vuelos(origen: str, destino: str, fecha_ida: str, fecha_vuelta: str, adultos: int = 1, umbral_precio: float = 500):
     try:
         response = amadeus.shopping.flight_offers_search.get(
             originLocationCode=origen,
@@ -43,31 +40,32 @@ def buscar_vuelos(origen: str, destino: str, fecha_ida: str, fecha_vuelta: str, 
 
         resultados = []
         for oferta in response.data:
-            precio = oferta['price']['total'] + " USD"
-            itinerario = oferta['itineraries'][0]['segments'][0]
-            salida = formatear_fecha(itinerario['departure']['at'])
-            llegada = formatear_fecha(itinerario['arrival']['at'])
-            aerolinea = aerolineas.get(itinerario['carrierCode'], itinerario['carrierCode'])
-            duracion = formatear_duracion(itinerario['duration'])
+            precio_total = float(oferta['price']['total'])
+            if precio_total <= umbral_precio:  # Filtrar por umbral
+                itinerario = oferta['itineraries'][0]['segments'][0]
+                salida = formatear_fecha(itinerario['departure']['at'])
+                llegada = formatear_fecha(itinerario['arrival']['at'])
+                aerolinea = aerolineas.get(itinerario['carrierCode'], itinerario['carrierCode'])
+                duracion = formatear_duracion(itinerario['duration'])
 
-            resultados.append({
-                "precio": precio,
-                "aerolinea": aerolinea,
-                "salida": salida,
-                "llegada": llegada,
-                "duracion": duracion
-            })
+                resultados.append({
+                    "precio": f"{precio_total} USD",
+                    "aerolinea": aerolinea,
+                    "salida": salida,
+                    "llegada": llegada,
+                    "duracion": duracion
+                })
+
+        # Ordenar por precio
+        resultados.sort(key=lambda x: float(x["precio"].replace("USD", "").strip()))
 
         return {
             "origen": origen,
             "destino": destino,
             "fecha_ida": fecha_ida,
             "fecha_vuelta": fecha_vuelta,
-            "resultados": resultados
+            "resultados": resultados if resultados else "No se encontraron vuelos por debajo del umbral"
         }
 
     except ResponseError as error:
         return {"error": str(error)}
-
-
-
