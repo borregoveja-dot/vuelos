@@ -33,12 +33,7 @@ def formatear_duracion(duracion_iso):
 def buscar_mejores_ofertas(origen: str, fecha_ida: str, fecha_vuelta: str, adultos: int = 1, umbral_precio: float = 500):
     # Lista Top 50 destinos globales
     destinos = [
-        "MIA", "NYC", "LAX", "CUN", "SFO", "LAS", "ORD", "ATL", "DFW", "SEA",
-        "MAD", "CDG", "LON", "ROM", "AMS", "BCN", "FRA", "IST", "VIE", "PRG",
-        "TYO", "BKK", "SIN", "DXB", "DEL", "HKG", "KUL", "ICN", "MNL", "BOM",
-        "SYD", "MEL", "AKL", "NAN", "PPT",
-        "CPT", "CAI", "JNB", "DAR", "ADD",
-        "RIO", "GRU", "SCL", "LIM", "BOG"
+        "MIA"
     ]
     mejores_ofertas = []
 
@@ -76,3 +71,4 @@ def buscar_mejores_ofertas(origen: str, fecha_ida: str, fecha_vuelta: str, adult
 
     except ResponseError as error:
         return {"error": str(error)}
+
