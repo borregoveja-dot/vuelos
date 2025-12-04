@@ -6,8 +6,8 @@ app = FastAPI(title="Buscador de Vuelos Económicos")
 
 # Configura el cliente Amadeus con tus credenciales del Sandbox
 amadeus = Client(
-    client_id='U0156VAr98TAIDHoHD3m49C7XKtmg36R',
-    client_secret='OOoUAAFl4WRXwn6e'
+    client_id="U0156VAr98TAIDHoHD3m49C7XKtmg36R",
+    client_secret="OOoUAAFl4WRXwn6e"
 )
 
 # Diccionario para convertir códigos de aerolíneas a nombres
@@ -64,4 +64,5 @@ def buscar_vuelos(origen: str, destino: str, fecha_ida: str, fecha_vuelta: str, 
 
     except ResponseError as error:
         return {"error": str(error)}
+
 
