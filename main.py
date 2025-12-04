@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 from amadeus import Client, ResponseError
 from datetime import datetime
